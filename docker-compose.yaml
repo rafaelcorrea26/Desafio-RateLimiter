@@ -1,0 +1,40 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: ratelimiter-redis
+    restart: always
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+
+  app:
+    build: .
+    container_name: ratelimiter-app
+    ports:
+      - 8080:8080
+    env_file:
+      - .env
+    environment:
+      # dentro da rede do compose o redis é achado pelo nome do serviço
+      REDIS_HOST: redis
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # só sobe com: docker compose run --rm tests
+  tests:
+    build:
+      context: .
+      target: builder
+    command: go test -v ./...
+    environment:
+      REDIS_ADDR: redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    profiles:
+      - test

@@ -1,0 +1,10 @@
+### sem token, conta pelo IP
+GET http://localhost:8080/
+
+### com token, conta pelo token
+GET http://localhost:8080/
+API_KEY: abc123
+
+### token que não está no RATE_LIMIT_TOKENS, usa o RATE_LIMIT_TOKEN
+GET http://localhost:8080/
+API_KEY: qualquer-outro
